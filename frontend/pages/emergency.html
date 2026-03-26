@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emergency Assistance — RoadAssist</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/emergency.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCOQdivHsr7R7efCtHJqJYZD-_jZfUkD" defer></script>
+</head>
+<body>
+  <nav class="navbar"></nav>
+    <div class="nav-brand"><span class="brand-icon">⛽</span><span class="brand-name">RoadAssist</span></div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Dashboard</a>
+      <a href="map.html" class="nav-link">Live Map</a>
+      <a href="emergency.html" class="nav-link emergency-link active">🆘 Emergency</a>
+      <a href="profile.html" class="nav-link">Profile</a>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+    <button class="hamburger" id="hamburger">☰</button>
+  </nav>
+
+  <main class="emergency-main">
+    <!-- LEFT: Form -->
+    <div class="emergency-form-panel">
+      <div class="panel-header">
+        <div class="header-badge">🆘 EMERGENCY REQUEST</div>
+        <h1 class="panel-title">Request Assistance</h1>
+        <p class="panel-sub">Fill in the details below — help is dispatched automatically once submitted.</p>
+      </div>
+
+      <!-- STEP TRACKER -->
+      <div class="steps-tracker">
+        <div class="step-dot active" data-step="1">1</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="2">2</div>
+        <div class="step-line"></div>
+        <div class="step-dot" data-step="3">3</div>
+      </div>
+
+      <!-- STEP 1: Service Type -->
+      <div class="form-step active" id="step1">
+        <h3 class="step-title">What do you need?</h3>
+        <div class="service-options">
+          <label class="service-opt" data-value="fuel">
+            <input type="radio" name="serviceType" value="fuel" />
+            <span class="opt-icon">⛽</span>
+            <span class="opt-label">Fuel Delivery</span>
+          </label>
+          <label class="service-opt" data-value="towing">
+            <input type="radio" name="serviceType" value="towing" />
+            <span class="opt-icon">🚗</span>
+            <span class="opt-label">Tow Truck</span>
+          </label>
+          <label class="service-opt" data-value="mechanic">
+            <input type="radio" name="serviceType" value="mechanic" />
+            <span class="opt-icon">🔧</span>
+            <span class="opt-label">Mechanic</span>
+          </label>
+          <label class="service-opt" data-value="battery">
+            <input type="radio" name="serviceType" value="battery" />
+            <span class="opt-icon">🔋</span>
+            <span class="opt-label">Battery Jump</span>
+          </label>
+          <label class="service-opt" data-value="tyre">
+            <input type="radio" name="serviceType" value="tyre" />
+            <span class="opt-icon">🛞</span>
+            <span class="opt-label">Tyre Change</span>
+          </label>
+          <label class="service-opt" data-value="sos">
+            <input type="radio" name="serviceType" value="sos" />
+            <span class="opt-icon">🆘</span>
+            <span class="opt-label">SOS Critical</span>
+          </label>
+        </div>
+        <button class="btn btn-emergency" onclick="nextStep(2)" style="width:100%;margin-top:24px;">Continue →</button>
+      </div>
+
+      <!-- STEP 2: Location & Vehicle -->
+      <div class="form-step" id="step2">
+        <h3 class="step-title">Your Location & Vehicle</h3>
+        <div class="form-group">
+          <label class="form-label">📍 Your Location</label>
+          <div class="location-row">
+            <input type="text" id="locationInput" class="form-input" placeholder="Address or landmark..." />
+            <button class="locate-btn" onclick="detectLocation()" title="Use GPS">🎯</button>
+          </div>
+          <div id="locationStatus" class="location-status"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">🚗 Vehicle Type</label>
+            <select class="form-input" id="vehicleType">
+              <option value="">Select...</option>
+              <option value="car">Car / SUV</option>
+              <option value="bike">Motorcycle / Scooter</option>
+              <option value="truck">Truck / Commercial</option>
+              <option value="auto">Auto Rickshaw</option>
+              <option value="bus">Bus / Minibus</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📋 Vehicle Number</label>
+            <input type="text" id="vehicleNum" class="form-input" placeholder="TS09EA1234" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📝 Description (optional)</label>
+          <textarea class="form-input" id="description" rows="3" placeholder="Describe the issue briefly..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="nextStep(1)">← Back</button>
+          <button class="btn btn-emergency" onclick="nextStep(3)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Confirm & Submit -->
+      <div class="form-step" id="step3">
+        <h3 class="step-title">Confirm & Submit</h3>
+        <div class="confirm-card">
+          <div class="confirm-row"><span>Service:</span><strong id="confirmService">—</strong></div>
+          <div class="confirm-row"><span>Location:</span><strong id="confirmLocation">—</strong></div>
+          <div class="confirm-row"><span>Vehicle:</span><strong id="confirmVehicle">—</strong></div>
+          <div class="confirm-row"><span>Priority:</span><strong id="confirmPriority" class="text-accent">STANDARD</strong></div>
+          <div class="confirm-row"><span>Est. Response:</span><strong class="text-green" id="confirmETA">~15 min</strong></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📞 Your Phone Number</label>
+          <input type="tel" id="phoneNum" class="form-input" placeholder="+91 98765 43210" />
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="nextStep(2)">← Back</button>
+          <button class="btn btn-emergency submit-btn" id="submitBtn" onclick="submitRequest()">🆘 Dispatch Help Now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Map + Provider Status -->
+    <div class="emergency-map-panel">
+      <div id="emergencyMap" class="emergency-map-container">
+        <div class="map-placeholder">
+          <div class="map-loading">
+            <div class="pulse-ring"></div><div class="location-pin" style="font-size:3rem;">📍</div>
+          </div>
+          <p>Detecting your location...</p>
+        </div>
+      </div>
+
+      <!-- Provider Card (shown after submission) -->
+      <div class="provider-card" id="providerCard" style="display:none;">
+        <div class="provider-header">
+          <span class="provider-icon">👷</span>
+          <div>
+            <div class="provider-name" id="providerName">Assigning provider...</div>
+            <div class="provider-rating" id="providerRating">⭐⭐⭐⭐⭐ 4.9</div>
+          </div>
+          <div class="provider-eta-badge" id="providerETA">ETA: ~15 min</div>
+        </div>
+        <div class="provider-status-bar">
+          <div class="status-step completed">Requested</div>
+          <div class="status-line"></div>
+          <div class="status-step active" id="statusAssigned">Assigned</div>
+          <div class="status-line"></div>
+          <div class="status-step" id="statusEnRoute">En Route</div>
+          <div class="status-line"></div>
+          <div class="status-step" id="statusArrived">Arrived</div>
+        </div>
+        <div class="provider-contact">
+          <button class="contact-btn" onclick="callProvider()">📞 Call Provider</button>
+          <button class="contact-btn" onclick="shareLocation()">📍 Share Location</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="../js/main.js"></script>
+  <script src="../js/emergency.js"></script>
+</body>
+</html>

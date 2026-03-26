@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoadAssist — Emergency Fuel & Breakdown Help</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/dashboard.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-brand">
+      <span class="brand-icon">⛽</span>
+      <span class="brand-name">RoadAssist</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link active">Dashboard</a>
+      <a href="map.html" class="nav-link">Live Map</a>
+      <a href="emergency.html" class="nav-link emergency-link">🆘 Emergency</a>
+      <a href="profile.html" class="nav-link">Profile</a>
+      <button class="theme-toggle" id="themeToggle" title="Toggle dark/light mode">🌙</button>
+    </div>
+    <button class="hamburger" id="hamburger">☰</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-grid"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">REAL-TIME ASSISTANCE</div>
+      <h1 class="hero-title">Stranded?<br><span class="accent">We've Got You.</span></h1>
+      <p class="hero-subtitle">Instant fuel delivery and breakdown assistance — anywhere, anytime. AI-powered dispatch gets help to you faster.</p>
+      <div class="hero-actions">
+        <a href="emergency.html" class="btn btn-emergency">
+          <span class="btn-icon">🆘</span> Request Help Now
+        </a>
+        <a href="map.html" class="btn btn-secondary">
+          <span class="btn-icon">🗺️</span> Find Nearby Services
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num" data-target="2400">0</span><span class="stat-label">Providers</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num" data-target="98">0</span><span class="stat-label">% Success Rate</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num" data-target="12">0</span><span class="stat-label">Min Avg Response</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring delay-1"></div>
+      <div class="pulse-ring delay-2"></div>
+      <div class="location-pin">📍</div>
+    </div>
+  </section>
+
+  <!-- QUICK SERVICES -->
+  <section class="services-section container">
+    <div class="section-header">
+      <h2 class="section-title">Quick Services</h2>
+      <p class="section-sub">Select what you need — we dispatch instantly</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card" onclick="requestService('fuel')">
+        <div class="service-icon">⛽</div>
+        <h3>Fuel Delivery</h3>
+        <p>Out of petrol or diesel? We bring it to you.</p>
+        <div class="service-meta"><span class="eta">~15 min</span><span class="price">From ₹299</span></div>
+        <button class="service-btn">Request Now</button>
+      </div>
+      <div class="service-card" onclick="requestService('towing')">
+        <div class="service-icon">🚗</div>
+        <h3>Tow Truck</h3>
+        <p>Vehicle breakdown? Get towed to the nearest garage.</p>
+        <div class="service-meta"><span class="eta">~20 min</span><span class="price">From ₹599</span></div>
+        <button class="service-btn">Request Now</button>
+      </div>
+      <div class="service-card" onclick="requestService('mechanic')">
+        <div class="service-icon">🔧</div>
+        <h3>Mobile Mechanic</h3>
+        <p>On-spot repair for flat tyre, battery, engine issues.</p>
+        <div class="service-meta"><span class="eta">~18 min</span><span class="price">From ₹499</span></div>
+        <button class="service-btn">Request Now</button>
+      </div>
+      <div class="service-card" onclick="requestService('battery')">
+        <div class="service-icon">🔋</div>
+        <h3>Battery Jump</h3>
+        <p>Dead battery? Jump-start or replacement delivered.</p>
+        <div class="service-meta"><span class="eta">~12 min</span><span class="price">From ₹249</span></div>
+        <button class="service-btn">Request Now</button>
+      </div>
+      <div class="service-card" onclick="requestService('tyre')">
+        <div class="service-icon">🛞</div>
+        <h3>Tyre Change</h3>
+        <p>Flat tyre? We'll change it on the spot.</p>
+        <div class="service-meta"><span class="eta">~10 min</span><span class="price">From ₹199</span></div>
+        <button class="service-btn">Request Now</button>
+      </div>
+      <div class="service-card sos-card" onclick="window.location.href='emergency.html'">
+        <div class="service-icon">🆘</div>
+        <h3>SOS Emergency</h3>
+        <p>Critical situation? Instant priority dispatch.</p>
+        <div class="service-meta"><span class="eta">PRIORITY</span><span class="price">24/7</span></div>
+        <button class="service-btn sos-btn">SOS Now</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE ACTIVITY FEED -->
+  <section class="activity-section container">
+    <div class="section-header">
+      <h2 class="section-title">Live Activity</h2>
+      <span class="live-dot"></span><span class="live-text">Real-time updates</span>
+    </div>
+    <div class="activity-feed" id="activityFeed">
+      <div class="activity-item">
+        <span class="activity-icon">⛽</span>
+        <div class="activity-info">
+          <span class="activity-user">Ravi K.</span> — Fuel delivered in Hyderabad, Madhapur
+          <span class="activity-time">2 min ago</span>
+        </div>
+        <span class="activity-status completed">✓</span>
+      </div>
+      <div class="activity-item">
+        <span class="activity-icon">🔧</span>
+        <div class="activity-info">
+          <span class="activity-user">Priya S.</span> — Mechanic dispatched in Bengaluru, Koramangala
+          <span class="activity-time">5 min ago</span>
+        </div>
+        <span class="activity-status in-progress">⟳</span>
+      </div>
+      <div class="activity-item">
+        <span class="activity-icon">🚗</span>
+        <div class="activity-info">
+          <span class="activity-user">Arun M.</span> — Tow truck assigned in Chennai, Guindy
+          <span class="activity-time">8 min ago</span>
+        </div>
+        <span class="activity-status in-progress">⟳</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI INSIGHTS PANEL -->
+  <section class="insights-section container">
+    <div class="insights-card">
+      <div class="insights-header">
+        <span class="insights-icon">🤖</span>
+        <h3>AI Route & Risk Insights</h3>
+        <span class="insights-badge">ML Powered</span>
+      </div>
+      <div class="insights-body" id="insightsBody">
+        <div class="insight-item risk-high">
+          <span class="risk-label">⚠️ HIGH RISK</span>
+          <p>NH-44 near Nagpur — 3 breakdown reports in the last hour. Fuel stations sparse next 80 km.</p>
+        </div>
+        <div class="insight-item risk-medium">
+          <span class="risk-label">🔶 MODERATE</span>
+          <p>Hyderabad ORR — Peak hour congestion. Expected fuel consumption +18% above normal.</p>
+        </div>
+        <div class="insight-item risk-low">
+          <span class="risk-label">✅ CLEAR</span>
+          <p>Mumbai–Pune Expressway — No breakdown incidents. Fuel stations every 15 km.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-section container">
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps-grid">
+      <div class="step"><div class="step-num">01</div><h4>Request Help</h4><p>Tap a service or hit SOS — your GPS location is shared instantly.</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><div class="step-num">02</div><h4>AI Dispatches</h4><p>Our ML model picks the best provider based on proximity, rating, and availability.</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><div class="step-num">03</div><h4>Track Live</h4><p>Watch your provider move toward you on the map in real-time via Socket.IO.</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><div class="step-num">04</div><h4>Done & Rated</h4><p>Service complete — rate your provider and we get smarter for next time.</p></div>
+    </div>
+  </section>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- SOS FLOATING BUTTON -->
+  <a href="emergency.html" class="sos-fab" title="SOS Emergency">🆘</a>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">⛽ RoadAssist</div>
+          <p class="footer-desc">AI-powered roadside assistance for every Indian highway.</p>
+        </div>
+        <div>
+          <h5>Services</h5>
+          <ul>
+            <li><a href="#">Fuel Delivery</a></li>
+            <li><a href="#">Towing</a></li>
+            <li><a href="#">Mobile Mechanic</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Legal</h5>
+          <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
+        </div>
+        <div>
+          <h5>Contact</h5>
+          <p>📞 1800-ROADASSIST</p>
+          <p>✉ help@roadassist.in</p>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2025 RoadAssist. Made with ❤️ for Indian roads.</div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

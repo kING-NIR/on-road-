@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile — RoadAssist</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    .profile-main { max-width: 900px; margin: 0 auto; padding: 100px 24px 60px; }
+    .profile-header { display: flex; align-items: center; gap: 24px; margin-bottom: 48px; padding: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+    .avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 2.4rem; flex-shrink: 0; }
+    .profile-info h1 { font-family: var(--font-display); font-size: 2rem; letter-spacing: 2px; }
+    .profile-info p { color: var(--text-2); font-size: 0.9rem; }
+    .profile-badge { margin-left: auto; padding: 6px 16px; border-radius: 999px; background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent); font-family: var(--font-mono); font-size: 0.75rem; }
+    .profile-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 40px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
+    .stat-card .num { font-family: var(--font-display); font-size: 2.4rem; color: var(--accent); }
+    .stat-card .lbl { font-size: 0.8rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+    .tab { padding: 12px 20px; font-size: 0.9rem; font-weight: 600; color: var(--text-2); cursor: pointer; border-bottom: 2px solid transparent; transition: all var(--transition); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+    .form-input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; color: var(--text); font-family: var(--font-body); font-size: 0.95rem; transition: all var(--transition); }
+    .form-input:focus { outline: none; border-color: var(--accent); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .history-item { display: flex; align-items: center; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; }
+    .history-icon { font-size: 1.5rem; width: 40px; text-align: center; }
+    .history-info { flex: 1; }
+    .history-title { font-weight: 600; font-size: 0.95rem; }
+    .history-meta { font-size: 0.78rem; color: var(--text-3); margin-top: 2px; font-family: var(--font-mono); }
+    .status-badge { padding: 4px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; font-family: var(--font-mono); }
+    .status-completed { background: rgba(0,208,132,0.12); color: var(--green); }
+    .status-pending { background: rgba(255,187,0,0.12); color: var(--yellow); }
+    .status-cancelled { background: rgba(255,59,59,0.12); color: var(--red); }
+    .auth-wall { text-align: center; padding: 80px 20px; }
+    .auth-wall h2 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 16px; }
+    .auth-wall p { color: var(--text-2); margin-bottom: 32px; }
+    .auth-form { max-width: 420px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; }
+    .auth-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg-2); border-radius: var(--radius); padding: 4px; }
+    .auth-tab { flex: 1; padding: 8px; text-align: center; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--text-2); transition: all var(--transition); }
+    .auth-tab.active { background: var(--surface); color: var(--text); }
+  </style>
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-brand"><span class="brand-icon">⛽</span><span class="brand-name">RoadAssist</span></div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Dashboard</a>
+      <a href="map.html" class="nav-link">Live Map</a>
+      <a href="emergency.html" class="nav-link emergency-link">🆘 Emergency</a>
+      <a href="profile.html" class="nav-link active">Profile</a>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+    <button class="hamburger" id="hamburger">☰</button>
+  </nav>
+
+  <main class="profile-main" id="profileMain">
+    <!-- AUTH WALL (shown when not logged in) -->
+    <div class="auth-wall" id="authWall">
+      <h2>Sign In to RoadAssist</h2>
+      <p>Access your profile, request history, and emergency services.</p>
+      <div class="auth-form">
+        <div class="auth-tabs">
+          <div class="auth-tab active" onclick="switchAuthTab('login')">Login</div>
+          <div class="auth-tab" onclick="switchAuthTab('register')">Sign Up</div>
+        </div>
+        <!-- LOGIN -->
+        <div id="loginForm">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="loginEmail" placeholder="you@email.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" />
+          </div>
+          <button class="btn btn-emergency" style="width:100%;justify-content:center;" onclick="login()">Login</button>
+        </div>
+        <!-- REGISTER -->
+        <div id="registerForm" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" id="regName" placeholder="Your name" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" id="regEmail" placeholder="you@email.com" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-input" id="regPhone" placeholder="+91 98765..." />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="regPassword" placeholder="Min 6 characters" />
+          </div>
+          <button class="btn btn-emergency" style="width:100%;justify-content:center;" onclick="register()">Create Account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE (shown when logged in) -->
+    <div id="profileContent" style="display:none;">
+      <div class="profile-header">
+        <div class="avatar" id="profileAvatar">👤</div>
+        <div class="profile-info">
+          <h1 id="profileName">Loading...</h1>
+          <p id="profileEmail"></p>
+          <p id="profilePhone"></p>
+        </div>
+        <span class="profile-badge" id="profileRole">USER</span>
+      </div>
+      <div class="profile-stats">
+        <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">Total Requests</div></div>
+        <div class="stat-card"><div class="num" id="statCompleted">0</div><div class="lbl">Completed</div></div>
+        <div class="stat-card"><div class="num" id="statSaved">0</div><div class="lbl">Times Rescued 🙏</div></div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('history')">Request History</div>
+        <div class="tab" onclick="switchTab('settings')">Settings</div>
+        <div class="tab" onclick="switchTab('security')">Security</div>
+      </div>
+      <!-- HISTORY -->
+      <div class="tab-panel active" id="tab-history">
+        <div id="historyList">
+          <div class="history-item">
+            <div class="history-icon">⛽</div>
+            <div class="history-info">
+              <div class="history-title">Fuel Delivery — Hyderabad, Madhapur</div>
+              <div class="history-meta">RA1A2B3C4 · 2 days ago · ₹349</div>
+            </div>
+            <span class="status-badge status-completed">COMPLETED</span>
+          </div>
+          <div class="history-item">
+            <div class="history-icon">🔧</div>
+            <div class="history-info">
+              <div class="history-title">Mobile Mechanic — Bengaluru, Koramangala</div>
+              <div class="history-meta">RA9X8Y7Z · 1 week ago · ₹599</div>
+            </div>
+            <span class="status-badge status-completed">COMPLETED</span>
+          </div>
+        </div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="tab-panel" id="tab-settings">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-input" id="editName" /></div>
+          <div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="editPhone" /></div>
+        </div>
+        <button class="btn btn-secondary" onclick="updateProfile()">Save Changes</button>
+        &nbsp;
+        <button class="btn" style="background:var(--red);color:#fff;" onclick="logout()">Logout</button>
+      </div>
+      <!-- SECURITY -->
+      <div class="tab-panel" id="tab-security">
+        <div class="form-group"><label class="form-label">Current Password</label><input type="password" class="form-input" id="currentPass" /></div>
+        <div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input" id="newPass" /></div>
+        <button class="btn btn-secondary" onclick="changePassword()">Update Password</button>
+      </div>
+    </div>
+  </main>
+
+  <a href="emergency.html" class="sos-fab">🆘</a>
+  <div class="toast-container" id="toastContainer"></div>
+  <script src="../js/main.js"></script>
+  <script>
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register')));
+      document.getElementById('loginForm').style.display = tab==='login' ? 'block' : 'none';
+      document.getElementById('registerForm').style.display = tab==='register' ? 'block' : 'none';
+    }
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(`tab-${tab}`).classList.add('active');
+    }
+    async function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      try {
+        const data = await apiCall('/auth/login','POST',{email,password});
+        Auth.setToken(data.data.token); Auth.setUser(data.data.user);
+        showToast('Welcome back! 👋','success'); loadProfile();
+      } catch(e){ showToast(e.message,'error'); }
+    }
+    async function register() {
+      const body = { name: document.getElementById('regName').value, email: document.getElementById('regEmail').value, phone: document.getElementById('regPhone').value, password: document.getElementById('regPassword').value };
+      try {
+        const data = await apiCall('/auth/register','POST',body);
+        Auth.setToken(data.data.token); Auth.setUser(data.data.user);
+        showToast('Account created! 🎉','success'); loadProfile();
+      } catch(e){ showToast(e.message,'error'); }
+    }
+    function loadProfile() {
+      const user = Auth.getUser();
+      if (!user) { document.getElementById('authWall').style.display='block'; document.getElementById('profileContent').style.display='none'; return; }
+      document.getElementById('authWall').style.display='none';
+      document.getElementById('profileContent').style.display='block';
+      document.getElementById('profileName').textContent = user.name;
+      document.getElementById('profileEmail').textContent = user.email;
+      document.getElementById('profilePhone').textContent = user.phone;
+      document.getElementById('profileRole').textContent = user.role?.toUpperCase();
+      document.getElementById('profileAvatar').textContent = user.name?.charAt(0) || '👤';
+      document.getElementById('editName').value = user.name;
+      document.getElementById('editPhone').value = user.phone;
+      fetchStats();
+    }
+    async function fetchStats() {
+      try {
+        const data = await apiCall('/users/profile');
+        const s = data.data.stats;
+        document.getElementById('statTotal').textContent = s.total;
+        document.getElementById('statCompleted').textContent = s.completed;
+        document.getElementById('statSaved').textContent = s.completed;
+      } catch {}
+    }
+    async function updateProfile() {
+      const name = document.getElementById('editName').value;
+      const phone = document.getElementById('editPhone').value;
+      try {
+        await apiCall('/users/profile','PATCH',{name,phone});
+        const user = Auth.getUser(); Auth.setUser({...user,name,phone});
+        showToast('Profile updated ✓','success');
+      } catch(e){ showToast(e.message,'error'); }
+    }
+    async function changePassword() {
+      const currentPassword = document.getElementById('currentPass').value;
+      const newPassword = document.getElementById('newPass').value;
+      try {
+        await apiCall('/users/password','PATCH',{currentPassword,newPassword});
+        showToast('Password updated ✓','success');
+      } catch(e){ showToast(e.message,'error'); }
+    }
+    function logout() { Auth.clear(); showToast('Logged out','info'); setTimeout(()=>window.location.href='index.html',800); }
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+</body>
+</html>
