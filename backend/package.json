@@ -10,20 +10,22 @@
     "seed": "node config/seed.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "socket.io": "^4.7.2",
-    "mysql2": "^3.9.1",
-    "sequelize": "^6.37.1",
-    "jsonwebtoken": "^9.0.2",
+    "axios": "^1.6.7",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.4",
+    "express": "^4.18.2",
     "express-rate-limit": "^7.2.0",
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "mysql2": "^3.9.1",
+    "multer": "^1.4.5-lts.1",
     "node-fetch": "^2.7.0",
-    "axios": "^1.6.7",
+    "sequelize": "^6.37.1",
+    "socket.io": "^4.7.2",
+    "sqlite3": "^5.1.7",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

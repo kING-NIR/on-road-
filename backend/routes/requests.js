@@ -11,8 +11,10 @@ const router  = require('express').Router();
 const axios   = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const { Op }  = require('sequelize');
+const path    = require('path');
 const { Request, Provider, User } = require('../models');
 const { protect, requireRole } = require('../middleware/auth');
+const upload  = require('../middleware/upload');
 const { body, validationResult } = require('express-validator');
 
 /* ── HELPER: Generate request number ── */
@@ -214,6 +216,88 @@ router.post('/:id/rate', protect, [
     }
 
     res.json({ success: true, message: 'Rating submitted' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/* ── UPLOAD IMAGES TO REQUEST ── */
+router.post('/:id/images', protect, upload.array('images', 5), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: 'No images provided' });
+    }
+
+    const request = await Request.findOne({ where: { id: req.params.id, userId: req.user.id } });
+    if (!request) return res.status(404).json({ success: false, message: 'Request not found' });
+
+    // Generate image URLs (relative path from backend public)
+    const newImageUrls = req.files.map(file => `/uploads/${file.filename}`);
+    const currentImages = request.imageUrls || [];
+    const updatedImages = [...currentImages, ...newImageUrls];
+
+    await request.update({ imageUrls: updatedImages });
+
+    // Notify provider about new images
+    const io = req.app.get('io');
+    io.to(`request:${request.id}`).emit('request:images-added', {
+      requestId: request.id,
+      imageCount: updatedImages.length,
+      imageUrls: newImageUrls
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Images uploaded successfully',
+      data: { imageUrls: updatedImages }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/* ── GET REQUEST IMAGES ── */
+router.get('/:id/images', protect, async (req, res) => {
+  try {
+    const request = await Request.findOne({
+      where: { id: req.params.id },
+      attributes: ['id', 'imageUrls']
+    });
+
+    if (!request) return res.status(404).json({ success: false, message: 'Request not found' });
+
+    res.json({
+      success: true,
+      data: {
+        requestId: request.id,
+        images: request.imageUrls || [],
+        count: (request.imageUrls || []).length
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/* ── DELETE IMAGE FROM REQUEST ── */
+router.delete('/:id/images/:filename', protect, async (req, res) => {
+  try {
+    const request = await Request.findOne({ where: { id: req.params.id, userId: req.user.id } });
+    if (!request) return res.status(404).json({ success: false, message: 'Request not found' });
+
+    const imageUrl = `/uploads/${req.params.filename}`;
+    const updatedImages = (request.imageUrls || []).filter(img => img !== imageUrl);
+
+    await request.update({ imageUrls: updatedImages });
+
+    // Delete file from disk
+    const fs = require('fs');
+    const filePath = path.join(__dirname, '../uploads', req.params.filename);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    res.json({ success: true, message: 'Image deleted', data: { imageUrls: updatedImages } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

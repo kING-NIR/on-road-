@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../css/emergency.css" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCOQdivHsr7R7efCtHJqJYZD-_jZfUkD" defer></script>
+  <script src="../js/apiLoader.js"></script>
 </head>
 <body>
   <nav class="navbar"></nav>
@@ -111,6 +111,27 @@
           <label class="form-label">📝 Description (optional)</label>
           <textarea class="form-input" id="description" rows="3" placeholder="Describe the issue briefly..."></textarea>
         </div>
+
+        <!-- IMAGE UPLOAD -->
+        <div class="form-group">
+          <label class="form-label">📸 Attach Photos (max 5)</label>
+          <div class="image-upload-area">
+            <input type="file" id="imageInput" class="image-input" accept="image/*" multiple style="display:none;" />
+            <div class="upload-btn-group">
+              <button type="button" class="upload-btn" onclick="document.getElementById('imageInput').click()">
+                <span>📷 Camera/Gallery</span>
+              </button>
+              <button type="button" class="upload-btn" id="takeCameraBtn" onclick="startCamera()">
+                <span>📹 Take Photo</span>
+              </button>
+            </div>
+            <!-- Hidden video element for camera -->
+            <video id="cameraPreview" style="display:none; width:100%; max-width:300px; margin-top:12px; border-radius:8px;"></video>
+            <button type="button" id="captureBtn" style="display:none;" onclick="capturePhoto()" class="btn btn-secondary">Capture Photo</button>
+            <div class="image-preview-wrap" id="imagePreviewWrap"></div>
+          </div>
+        </div>
+
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="nextStep(1)">← Back</button>
           <button class="btn btn-emergency" onclick="nextStep(3)">Continue →</button>

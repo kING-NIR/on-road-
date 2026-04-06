@@ -56,7 +56,8 @@ const Request = sequelize.define('Request', {
   completedAt:  { type: DataTypes.DATE, allowNull: true },
   totalAmount:  { type: DataTypes.DECIMAL(10, 2), allowNull: true },
   rating:       { type: DataTypes.INTEGER, allowNull: true }, // 1-5
-  feedback:     { type: DataTypes.TEXT, allowNull: true }
+  feedback:     { type: DataTypes.TEXT, allowNull: true },
+  imageUrls:    { type: DataTypes.JSON, allowNull: true, defaultValue: [] } // Array of image URLs
 }, { tableName: 'requests' });
 
 /* ── LOCATION LOG MODEL ── */

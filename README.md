@@ -50,7 +50,7 @@ docker run --name ra-db -e MYSQL_ROOT_PASSWORD=pass -e MYSQL_DATABASE=roadassist
 # 2. Backend
 cd backend && npm install
 cp .env.example .env   # fill in your values
-npm run dev            # http://localhost:5000
+npm run dev            # http://localhost:5001
 
 # 3. ML Service
 cd ../ml-service

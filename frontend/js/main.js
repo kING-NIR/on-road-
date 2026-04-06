@@ -3,7 +3,7 @@
    Shared utilities: theme, nav, toasts, socket
    ============================================ */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'http://localhost:5001/api';
 const ML_BASE  = 'http://localhost:8000';
 let socket;
 
@@ -88,7 +88,7 @@ function animateCounters() {
 
 /* ── SOCKET INIT ── */
 function initSocket() {
-  socket = io('http://localhost:5000', {
+  socket = io('http://localhost:5001', {
     auth: { token: Auth.getToken() },
     transports: ['websocket']
   });

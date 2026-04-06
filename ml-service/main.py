@@ -38,12 +38,12 @@ async def load_models():
     global breakdown_model, fuel_model, provider_model
     try:
         breakdown_model = joblib.load(MODEL_DIR / "breakdown_predictor.pkl")
-        print("✅ Breakdown model loaded")
+        print("Breakdown model loaded")
     except FileNotFoundError:
         print("⚠️  Breakdown model not found — using rule-based fallback")
     try:
         fuel_model = joblib.load(MODEL_DIR / "fuel_demand.pkl")
-        print("✅ Fuel demand model loaded")
+        print("Fuel demand model loaded")
     except FileNotFoundError:
         print("⚠️  Fuel model not found — using rule-based fallback")
 

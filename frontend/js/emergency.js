@@ -9,6 +9,8 @@ let emergencyMap = null;
 let userMarker = null;
 let providerMarker = null;
 let currentRequestId = null;
+let selectedImages = []; // Store selected image files
+let cameraStream = null;
 
 /* ── STEP NAVIGATION ── */
 function nextStep(step) {
@@ -135,6 +137,13 @@ async function submitRequest() {
     const data = await apiCall('/requests', 'POST', payload);
     currentRequestId = data.data.requestId;
 
+    // Upload images if any
+    if (selectedImages.length > 0) {
+      btn.textContent = '📸 Uploading images...';
+      await uploadImages(currentRequestId, selectedImages);
+      showToast(`✓ ${selectedImages.length} image(s) uploaded`, 'success');
+    }
+
     showToast('🆘 Help dispatched! Provider assigned.', 'success');
     showProviderCard(data.data);
     listenToRequest(currentRequestId);
@@ -195,6 +204,139 @@ function getMapStyles() {
     { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#111118' }] }
   ];
 }
+
+/* ── IMAGE HANDLING ── */
+function handleImageSelection(e) {
+  const files = Array.from(e.target.files || []);
+  const maxFiles = 5;
+  
+  if (selectedImages.length + files.length > maxFiles) {
+    showToast(`Max ${maxFiles} images allowed`, 'error');
+    return;
+  }
+
+  files.forEach(file => {
+    if (file.type.startsWith('image/')) {
+      selectedImages.push(file);
+    } else {
+      showToast('Only image files allowed', 'error');
+    }
+  });
+
+  displayImagePreviews();
+}
+
+function displayImagePreviews() {
+  const wrap = document.getElementById('imagePreviewWrap');
+  wrap.innerHTML = '';
+
+  selectedImages.forEach((file, index) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const div = document.createElement('div');
+      div.className = 'image-preview-item';
+      div.innerHTML = `
+        <img src="${e.target.result}" alt="preview" class="preview-img">
+        <button type="button" class="remove-img-btn" onclick="removeImage(${index})">✕</button>
+      `;
+      wrap.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Show count
+  if (selectedImages.length > 0) {
+    const countDiv = document.createElement('div');
+    countDiv.style.marginTop = '8px';
+    countDiv.style.fontSize = '12px';
+    countDiv.style.color = 'var(--accent)';
+    countDiv.textContent = `${selectedImages.length} image(s) selected`;
+    wrap.appendChild(countDiv);
+  }
+}
+
+function removeImage(index) {
+  selectedImages.splice(index, 1);
+  displayImagePreviews();
+  showToast('Image removed', 'info');
+}
+
+function startCamera() {
+  const video = document.getElementById('cameraPreview');
+  const captureBtn = document.getElementById('captureBtn');
+  
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(stream => {
+      cameraStream = stream;
+      video.srcObject = stream;
+      video.style.display = 'block';
+      video.play();
+      captureBtn.style.display = 'block';
+      document.getElementById('takeCameraBtn').textContent = '❌ Close Camera';
+      document.getElementById('takeCameraBtn').onclick = stopCamera;
+    })
+    .catch(err => {
+      showToast('Camera permission denied or not available', 'error');
+      console.error(err);
+    });
+}
+
+function stopCamera() {
+  const video = document.getElementById('cameraPreview');
+  const captureBtn = document.getElementById('captureBtn');
+  
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  video.style.display = 'none';
+  captureBtn.style.display = 'none';
+  document.getElementById('takeCameraBtn').textContent = '📹 Take Photo';
+  document.getElementById('takeCameraBtn').onclick = startCamera;
+}
+
+function capturePhoto() {
+  const video = document.getElementById('cameraPreview');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0);
+
+  canvas.toBlob(blob => {
+    const file = new File([blob], `camera-${Date.now()}.jpg`, { type: 'image/jpeg' });
+    selectedImages.push(file);
+    displayImagePreviews();
+    showToast('✓ Photo captured', 'success');
+    stopCamera();
+  }, 'image/jpeg', 0.8);
+}
+
+async function uploadImages(requestId, files) {
+  const formData = new FormData();
+  files.forEach(file => formData.append('images', file));
+
+  const token = localStorage.getItem('token');
+  const response = await fetch(`http://localhost:5001/api/requests/${requestId}/images`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to upload images');
+  }
+
+  return response.json();
+}
+
+// Listen for file input changes
+document.addEventListener('DOMContentLoaded', () => {
+  const imageInput = document.getElementById('imageInput');
+  if (imageInput) {
+    imageInput.addEventListener('change', handleImageSelection);
+  }
+});
 
 /* ── INIT ── */
 document.addEventListener('DOMContentLoaded', () => {

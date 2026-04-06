@@ -61,7 +61,7 @@ breakdown_pipeline.fit(X_train, y_train)
 
 print(classification_report(y_test, breakdown_pipeline.predict(X_test)))
 joblib.dump(breakdown_pipeline, MODEL_DIR / "breakdown_predictor.pkl")
-print(f"✅ Saved: {MODEL_DIR / 'breakdown_predictor.pkl'}")
+print(f"Saved: {MODEL_DIR / 'breakdown_predictor.pkl'}")
 
 # ─── 2. Fuel Demand Dataset ──────────────────────────────────────────────────
 print("\nGenerating fuel demand dataset...")
@@ -99,6 +99,6 @@ fuel_pipeline.fit(Xf_train, yf_train)
 mae = mean_absolute_error(yf_test, fuel_pipeline.predict(Xf_test))
 print(f"Fuel demand MAE: {mae:.2f}")
 joblib.dump(fuel_pipeline, MODEL_DIR / "fuel_demand.pkl")
-print(f"✅ Saved: {MODEL_DIR / 'fuel_demand.pkl'}")
+print(f"Saved: {MODEL_DIR / 'fuel_demand.pkl'}")
 
-print("\n🎉 All models trained and saved successfully!")
+print("\nAll models trained and saved successfully!")
