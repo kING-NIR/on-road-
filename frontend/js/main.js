@@ -3,8 +3,11 @@
    Shared utilities: theme, nav, toasts, socket
    ============================================ */
 
-const API_BASE = 'http://localhost:5001/api';
-const ML_BASE  = 'http://localhost:8000';
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+const API_BASE = isLocal ? 'http://localhost:5001/api' : 'https://road-asssist.onrender.com/api';
+const ML_BASE  = isLocal ? 'http://localhost:8000'     : 'https://road-asssist-1.onrender.com';
+const SOCKET_URL = isLocal ? 'http://localhost:5001'   : 'https://road-asssist.onrender.com';
 let socket;
 
 /* ── TOKEN HELPER ── */
@@ -88,7 +91,7 @@ function animateCounters() {
 
 /* ── SOCKET INIT ── */
 function initSocket() {
-  socket = io('http://localhost:5001', {
+  socket = io(SOCKET_URL, {
     auth: { token: Auth.getToken() },
     transports: ['websocket']
   });

@@ -317,7 +317,7 @@ async function uploadImages(requestId, files) {
   files.forEach(file => formData.append('images', file));
 
   const token = localStorage.getItem('token');
-  const response = await fetch(`http://localhost:5001/api/requests/${requestId}/images`, {
+  const response = await fetch(`${API_BASE}/requests/${requestId}/images`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}` },
     body: formData
