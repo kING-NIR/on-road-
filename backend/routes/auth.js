@@ -18,7 +18,7 @@ const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: 
 router.post('/register', [
   body('name').trim().notEmpty().withMessage('Name required'),
   body('email').isEmail().normalizeEmail(),
-  body('phone').matches(/^[+\d]{10,15}$/).withMessage('Valid phone required'),
+  body('phone').notEmpty().withMessage('Phone required'),
   body('password').isLength({ min: 6 }).withMessage('Password min 6 chars')
 ], async (req, res) => {
   const errors = validationResult(req);
