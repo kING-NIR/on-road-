@@ -3,7 +3,7 @@
   "name": "roadassist-frontend",
   "builds": [
     {
-      "src": "pages/**/*.html",
+      "src": "*.html",
       "use": "@vercel/static"
     },
     {
@@ -16,11 +16,11 @@
     }
   ],
   "routes": [
-    { "src": "/", "dest": "/pages/index.html" },
-    { "src": "/emergency", "dest": "/pages/emergency.html" },
-    { "src": "/map", "dest": "/pages/map.html" },
-    { "src": "/profile", "dest": "/pages/profile.html" },
-    { "src": "/admin", "dest": "/pages/admin.html" }
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/emergency", "dest": "/emergency.html" },
+    { "src": "/map", "dest": "/map.html" },
+    { "src": "/profile", "dest": "/profile.html" },
+    { "src": "/admin", "dest": "/admin.html" }
   ],
   "headers": [
     {
