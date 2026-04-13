@@ -5,9 +5,9 @@
 
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-const API_BASE = isLocal ? 'http://localhost:5001/api' : 'https://road-asssist.onrender.com/api';
+const API_BASE = isLocal ? 'http://localhost:5001/api' : 'https://on-road-production.up.railway.app/api';
 const ML_BASE  = isLocal ? 'http://localhost:8000'     : 'https://road-asssist-1.onrender.com';
-const SOCKET_URL = isLocal ? 'http://localhost:5001'   : 'https://road-asssist.onrender.com';
+const SOCKET_URL = isLocal ? 'http://localhost:5001'   : 'https://on-road-production.up.railway.app';
 let socket;
 
 /* ── TOKEN HELPER ── */

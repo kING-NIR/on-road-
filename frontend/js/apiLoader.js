@@ -5,8 +5,8 @@
 
 async function loadGoogleMapsAPI() {
   const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const apiBase = isLocal ? 'http://localhost:5001/api' : 'https://road-asssist.onrender.com/api';
-  
+  const apiBase = isLocal ? 'http://localhost:5001/api' : 'https://on-road-production.up.railway.app/api';
+
   try {
     const response = await fetch(`${apiBase}/config/maps`);
     const data = await response.json();
