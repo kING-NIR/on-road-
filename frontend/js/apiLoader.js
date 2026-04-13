@@ -18,12 +18,18 @@ async function loadGoogleMapsAPI() {
 
     // Dynamically create and load the script
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places,geometry`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places,geometry&callback=initGoogleMapGlobal`;
     script.defer = true;
     script.async = true;
-    script.onerror = () => console.error('Failed to load Google Maps API');
-    document.head.appendChild(script);
-
+    script.onerror = () => console.error('Failed to load Google Maps API');     
+    
+    // Add a global callback that checks if initMap exists
+    window.initGoogleMapGlobal = function() {
+      if (typeof window.initMap === 'function') {
+        window.initMap();
+      }
+    };
+    
     return true;
   } catch (error) {
     console.error('Error loading Google Maps API key:', error);
